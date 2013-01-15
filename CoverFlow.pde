@@ -190,6 +190,8 @@ public void initCovers() {
     covers[i].position.set(150.0 + 25.0*i, 0.0, 0.0);
     covers[i].rotationY = -QUARTER_PI;
   }
+  
+  controlEvent(3);
 }
 
 public void moveCovers() {

@@ -39,6 +39,8 @@ class Risiko {
     player2a = loadImage("gameplay/red100.png");
     player1a = loadImage("gameplay/yellow100.png");
     
+    player1i = loadImage("gameplay/yellow100inactive.png");
+    player2i = loadImage("gameplay/red100inactive.png");
     f = createFont("Arial",16,true); 
   }
 
@@ -78,10 +80,13 @@ class Risiko {
     image(imgBoard, 118.5, 123.5, 788, 521);
 
     if(player == 1) {
-      image(player1a, 100, 20, 58, 100);
+      image(player2i, 160, 648, 58, 100);
+      image(player1a, 805, 20, 58, 100);
+      
 
     } else if(player == 2) {
-      image(player2a, 865, 648, 58, 100);
+      image(player1i, 805, 20, 58, 100);
+      image(player2a, 160, 648, 58, 100);
     }
   }
   
