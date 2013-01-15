@@ -37,6 +37,10 @@ int time_millis = 0;
 
 // graphics 
 PImage imgLogo;
+PImage imgDark; 
+
+int fade_time = 2; // seconds  
+int tintVal = 0; 
 
 /*****
 * GAME STATES 
@@ -47,7 +51,8 @@ static class GameState {
   public static final int CREDITS_MOVIE   = 2; 
   public static final int GAME_SELECT     = 3;
   public static final int GAME_ACTIVE     = 4;
-  public static final int GAME_SELECTED   = 5;  
+  public static final int GAME_SELECTED   = 5;
+  public static final int INTRO_GAMES     = 6; 
 
   public static int current = NO_STATE;
 }
@@ -79,14 +84,16 @@ void setup() {
   Game.current = Game.NO_SELECTED;
   theMov = new Movie(this, "intro.mov");
 
-
   theMov.play();  //plays the movie once
   GameState.current = GameState.INTRO_MOVIE;
   time_millis = millis();
   isPlaying = true;
   
-  imgMask = loadImage("mask.png");
+  imgMask  = loadImage("mask.png");
   imgLogo  = loadImage("logo.png");
+  imgDark  = loadImage("dark.jpg");
+  tintVal = 0; 
+  fade_time = 2;
 
   // Init Ani
   Ani.init(this);
@@ -109,7 +116,7 @@ void draw() {
   background(0);
   
   // evaluate game states and perform actions 
-  switch(GameState.current){
+  switch(GameState.current){  
     case GameState.GAME_SELECT:
       // display the logo
       int imgWidth  = imgLogo.width;
@@ -129,10 +136,10 @@ void draw() {
       break; 
       
       case GameState.INTRO_MOVIE: 
-        //isPlaying = false;
         if( millis() - time_millis > theMov.duration() * 1000){
           isPlaying = false;
-          GameState.current = GameState.CREDITS_MOVIE;  
+          GameState.current = GameState.GAME_SELECT;  
+          time_millis = millis();
         }
         
         int movWidth = theMov.width; 
@@ -142,11 +149,7 @@ void draw() {
         
         if(isPlaying)image(theMov,x,y);
   
-        if(!showimage)rect(0, 0, 800, 600);
-      break; 
-      
-      case GameState.CREDITS_MOVIE:
-         GameState.current = GameState.GAME_SELECT; 
+        //if(!showimage)rect(0, 0, 800, 600);
       break; 
       case GameState.GAME_SELECTED:
          switch(Game.current){
