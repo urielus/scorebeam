@@ -19,10 +19,26 @@ class Risiko {
 
 
   PFont f;
-  PImage board;
+  PImage imgBoard;
+  PImage imgMenu;
+  //player graphics active
+  PImage player1a;
+  PImage player2a;
+  //player graphics passive
+  PImage player1i;
+  PImage player2i;
+  //player mission cards
+  PImage player1mc;
+  PImage player2mc;
+ 
 
   Risiko() {
-    this.board = loadImage("risiko spielfeld.jpg");
+    imgBoard = loadImage("risiko788.jpg");
+    imgMenu = loadImage("risk_menu.png");
+    
+    player2a = loadImage("gameplay/red100.png");
+    player1a = loadImage("gameplay/yellow100.png");
+    
     f = createFont("Arial",16,true); 
   }
 
@@ -51,38 +67,21 @@ class Risiko {
   }
   public void drawMenu() {
     
-    /**
-    Do something intelligent
-    */
-
-    stroke(175);
-  
-    textFont(f);       
-    fill(255);
-  
-    textAlign(CENTER);
-    text("RISIKO",width/2,60); 
-  
-    textAlign(LEFT);
-    text("This text is left aligned.",width/2,100); 
-  
-    textAlign(RIGHT);
-    text("This text is right aligned.",width/2,140); 
+    image(imgMenu,  0, 0, 1024, 768);
 
   }
   
   public void drawBoard(int player) {
-    int imgWidth  = board.width;
-    int imgHeight = board.height; 
-    int x = width/2 - imgWidth/2; 
-    int y = 0; 
     
-    image(board, x, y, imgWidth, imgHeight);
+    println("Player: "+player);
+    
+    image(imgBoard, 118.5, 123.5, 788, 521);
 
-    if(player == '1') {
-      println("Player 1 GO");
-    } else if(player == '2') {
-      println("Player 2 GO");
+    if(player == 1) {
+      image(player1a, 100, 20, 58, 100);
+
+    } else if(player == 2) {
+      image(player2a, 865, 648, 58, 100);
     }
   }
   
