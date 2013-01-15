@@ -11,22 +11,17 @@
  TODO: image resize, background image loading
  */
 
-import controlP5.*;
 import processing.opengl.*;
 import de.looksgood.ani.*;
 import processing.video.*;
 
-
-ControlP5 controlP5;
-Button bNext, bPrev;
-Slider slider;
-
+Risiko risiko;
 Cover[] covers;
 String[] names = { 
   "00.jpg", "01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"
 };
 PImage imgMask;
-PImage imgShadow;   
+
 Ani coverAnimation;
 
 float ANI_TIME = 0.5;
@@ -41,7 +36,7 @@ int time_millis = 0;
 
 
 // graphics 
-PImage imgLogo = loadImage("logo.png");
+PImage imgLogo;
 
 /*****
 * GAME STATES 
@@ -51,9 +46,21 @@ static class GameState {
   public static final int INTRO_MOVIE     = 1; 
   public static final int CREDITS_MOVIE   = 2; 
   public static final int GAME_SELECT     = 3;
-  public static final int GAME_ACTIVE     = 4; 
+  public static final int GAME_ACTIVE     = 4;
+  public static final int GAME_SELECTED   = 5;  
 
   public static int current = NO_STATE;
+}
+
+/*****
+* GAMES 
+******/
+static class Game{
+  public static final int RISIKO        = 6;
+  public static final int OTHER         = -1;
+  public static final int NO_SELECTED   = 0;  
+
+  public static int current = NO_SELECTED;
 }
 
 
@@ -69,6 +76,7 @@ void setup() {
 
   // current game state is no state .... 
   GameState.current = GameState.NO_STATE;
+  Game.current = Game.NO_SELECTED;
   theMov = new Movie(this, "intro.mov");
 
 
@@ -78,19 +86,14 @@ void setup() {
   isPlaying = true;
   
   imgMask = loadImage("mask.png");
-  imgShadow = loadImage("shadow.png");
-
-  // Init interface controlP5
- // controlP5 = new ControlP5(this);
-//  bPrev =    controlP5.addButton("Prev",-1, 20, 360, 80, 20);     // ((theName, theValue, theX, theY, theW, theH);
- // bNext =    controlP5.addButton("Next", 1, width-100, 360, 80, 20);
- // slider =   controlP5.addSlider("slider", 0, names.length-1, selectedCover, 120, 360, width - 240, 20); // (theName, theMin, theMax, theDefaultValue, theX, theY, theW, theH);
-  //slider.setLabelVisible(false);
-  //controlP5.setAutoDraw(false);
+  imgLogo  = loadImage("logo.png");
 
   // Init Ani
   Ani.init(this);
 
+  //gameobject
+  risiko = new Risiko();
+  
   // Init covers
   covers = new Cover[names.length];
   for (int i=0; i<covers.length; i++ ) {
@@ -108,11 +111,9 @@ void draw() {
   // evaluate game states and perform actions 
   switch(GameState.current){
     case GameState.GAME_SELECT:
-      //hint(ENABLE_DEPTH_TEST);
-      
       // display the logo
-      int imgWidth  = imgLogo.width / 10;
-      int imgHeight = imgLogo.height / 10; 
+      int imgWidth  = imgLogo.width;
+      int imgHeight = imgLogo.height; 
       x = width/2 - imgWidth/2; 
       y = 0; 
       image(imgLogo, x, y, imgWidth, imgHeight);
@@ -125,11 +126,6 @@ void draw() {
       }
       popMatrix();  
 
-      // disable depth test to draw control interface on top of everything
-      //hint(DISABLE_DEPTH_TEST);
-      // add here shadow if needed
-      //image(imgShadow, 0.0, 0.0);
-      //controlP5.draw(); //needed if we draw with p3d
       break; 
       
       case GameState.INTRO_MOVIE: 
@@ -144,7 +140,6 @@ void draw() {
         x = width/2 - movWidth/2;
         y = height/2 - movHeight/2; 
         
-        //if(showimage)image(theMov,0,0);
         if(isPlaying)image(theMov,x,y);
   
         if(!showimage)rect(0, 0, 800, 600);
@@ -153,40 +148,18 @@ void draw() {
       case GameState.CREDITS_MOVIE:
          GameState.current = GameState.GAME_SELECT; 
       break; 
+      case GameState.GAME_SELECTED:
+         switch(Game.current){
+           case Game.RISIKO:
+               risiko.draw();
+           break;
+         }
+      break; 
   }
 }
 
 
 /* -------------- EVENT MANAGEMENT -------------- */
-public void controlEvent(ControlEvent theEvent) {
-
-  // Check where the event comes from
-  if (theEvent.controller().name() == "slider" ) {           // slider
-    selectedCover = round(theEvent.controller().value());
-  }
-  else {                                                    // buttons
-    selectedCover += (int) theEvent.controller().value();
-    slider.setValue(selectedCover);
-  }
-
-  // Lock buttons if we are in the first or last cover
-  if ( selectedCover == names.length ) {
-    selectedCover --;
-    bNext.lock();
-  }
-  else if ( selectedCover < 0 ) {
-    selectedCover ++;
-    bPrev.lock();
-  }
-  else {
-    bNext.unlock();
-    bPrev.unlock();
-  }
-
-  //Call Animation
-  moveCovers();
-}
-
 public void controlEvent(int value) {
   
                                             // buttons
@@ -246,41 +219,32 @@ void movieEvent(Movie m) {
 } 
 
 void keyPressed() {
-  if (key == 'p') {
-    // toggle pausing
-    if (isPlaying) {
-      theMov.pause();
-    } else {
-      theMov.play();
-    }
-    isPlaying = !isPlaying;
-
-  } else if (key == 'l') {
-    // toggle looping
-    if (isLooping) {
-      theMov.noLoop();
-    } else {
-      theMov.loop();
-    }
-    isLooping = !isLooping;
-
-  } else if (key == 41) {
-    // stop playing
-    theMov.stop();
-    isPlaying = false;
-    showimage = false;
-
-  } else if (key == 'j') {
-    // jump to a random time
-    theMov.jump(random(theMov.duration()));
-  } else if(keyCode == LEFT) {
-    controlEvent(-1);
-    println("Left key toggled");
-  } else if(keyCode == RIGHT) {
-    controlEvent(1);
-     println("Right key toggled");
-  }  
+  
+  switch(GameState.current)
+  {
+    case GameState.GAME_SELECT:
+     if(keyCode == LEFT) {
+      controlEvent(-1);
+      //println("Left key toggled");
+     } else if(keyCode == RIGHT) {
+      controlEvent(1);
+      // println("Right key toggled");
+     } else if(keyCode == ENTER) {
+       GameState.current = GameState.GAME_SELECTED; 
+      Game.current = selectedCover; 
+       //println("ENTER key toggled");
+     }  
+    break; 
+    case GameState.GAME_SELECTED:
+       switch(Game.current){
+           case Game.RISIKO:
+               risiko.keyPressed(keyCode);
+           break;
+         }    
+    break;
+  }
 }
+
 boolean sketchFullScreen() {
   return true;
 }
