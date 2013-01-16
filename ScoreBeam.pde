@@ -80,14 +80,14 @@ void setup() {
 
 
   // current game state is no state .... 
-  //GameState.current = GameState.NO_STATE;
-  //Game.current = Game.NO_SELECTED;
-  GameState.current = GameState.GAME_SELECTED;
-  Game.current = Game.RISIKO;
+  GameState.current = GameState.NO_STATE;
+  Game.current = Game.NO_SELECTED;
+  //GameState.current = GameState.GAME_SELECTED;
+  //Game.current = Game.RISIKO;
   theMov = new Movie(this, "intro.mov");
 
   theMov.play();  //plays the movie once
-  //GameState.current = GameState.INTRO_MOVIE;
+  GameState.current = GameState.INTRO_MOVIE;
   time_millis = millis();
   isPlaying = true;
   
