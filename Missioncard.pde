@@ -1,9 +1,3 @@
-/**
- Quick Cover Flow in Processing
- by Adrià Navarro http://adrianavarro.net 
- USING: 3D (openGL), events (controlp5) and animation (ani)
- TODO: image resize, background image loading
- */
 static class CardState {
   public static final int NO_STATE              = 0;
   public static final int ACTIVE                = 1; 
@@ -64,7 +58,6 @@ class Missioncard {
   }
   
   public void setCardState(int cs) {
-    println("CardState: "+cs);
     CardState.current = cs;
   }
 

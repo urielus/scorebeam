@@ -11,9 +11,7 @@ static class InGameState {
   public static final int INTRO_SCREEN          = 1; 
   public static final int PLAYER1_TURN          = 2; 
   public static final int PLAYER2_TURN          = 3;
-  public static final int PLAYER1_MISSIONCARD   = 4;
-  public static final int PLAYER2_MISSIONCARD   = 5;
-  public static final int ATTACK                = 6;  
+  public static final int ATTACK                = 4;  
 
   public static int current = INTRO_SCREEN;
 }
@@ -21,40 +19,35 @@ static class InGameState {
 
 class Risiko {
 
-  /**Load game graphics */
+  /** Load game graphics */
   PImage imgMenu;                               //Menu - intro screen
   PImage imgBoard;                              //Actual gaming board
   PImage p1, p2;                                //Tokens for player1 and player2
   PImage p1_idle, p2_idle;                      //Inactive tokens for player1 and player2
-  
-  
-  PImage p1_mc, p2_mc;                          //Missioncards for player1 and player2
-  PImage p1_mc_idle, p2_mc_idle;                //Inactive missioncards for player1 and player2
-  PImage p1_mc_open, p2_mc_open;                //Open missioncards for player1 and player2
-  
+
+  /** Load missioncards */
   Missioncard p1_m, p2_m;
-  Missioncard p1_m_idle, p2_m_idle;                //Inactive missioncards for player1 and player2
-  Missioncard p1_m_open, p2_m_open;                //Open missioncards for player1 and player2
+
   
-  /**Load game movies */
+  /** Load game movies */
   Movie canonfire;                              //Canonfire movie
   Movie cavalry;                                //Cavalry movie
   Movie gunfire;                                //Gunfire movie
 
-  /**Canvas settings */
+  /** Canvas settings */
   PFont f;                                      //Font settings
-  float theta;
+  float ANI_TIME = 0.5;                         //Animation setting
+  int time_millis = 0;
+  boolean isPlaying = false;  
   
-  /**Game vars */
+  
+  /** Game vars */
   int activePlayer = 1;                          //The active player
-  String p1_name = "Gerfried";                     //Name of player1
-  String p2_name = "Stefan";                       //Name of player2
+  String p1_name = "Gerfried";                   //Name of player1
+  String p2_name = "Stefan";                     //Name of player2
   int p1_conquered = 14;                         //Countries conquered by player1
   int p2_conquered = 14;                         //Countries conquered by player2
   boolean revealed = false;                      //Missioncard open or not
-  float s = map(second(), 0, 60, 0, TWO_PI) - HALF_PI;
-  float m = map(minute() + norm(second(), 0, 60), 0, 60, 0, TWO_PI) - HALF_PI; 
-  float h = map(hour() + norm(minute(), 0, 60), 0, 24, 0, TWO_PI * 2) - HALF_PI;
   
   /**Debug */
   int x = 0;
@@ -71,12 +64,6 @@ class Risiko {
     p2 = getImg("cone_red.png");
     p1_idle = getImg("cone_yellow_idle.png");
     p2_idle = getImg("cone_red_idle.png");
-    p1_mc = getImg("mc_yellow.png");
-    p2_mc = getImg("mc_red.png");
-    p1_mc_idle = getImg("mc_yellow_idle.png");
-    p2_mc_idle = getImg("mc_red_idle.png");
-    p1_mc_open = getImg("mc_yellow_open.png");
-    p2_mc_open = getImg("mc_red_open.png");
     
     /**Initialize font settings */
     f = createFont("Arial",20,true); 
@@ -119,14 +106,8 @@ class Risiko {
       case InGameState.PLAYER2_TURN:
         drawBoard();
       break;
-      case InGameState.PLAYER1_MISSIONCARD:
-  
-      break;
-      case InGameState.PLAYER2_MISSIONCARD:
-  
-      break;
       case InGameState.ATTACK:
-        
+        drawBoard();   
       break;
     }
     
@@ -211,9 +192,7 @@ class Risiko {
       
     }
     
-    
-   
-    
+
 
     hint(DISABLE_DEPTH_TEST);
     /** Draw gaming board */ 
@@ -227,12 +206,12 @@ class Risiko {
     if(activePlayer == 1) {
       
         if(!revealed) {
-        println("Animate the missioncard");
+        
         Ani.to(p1_m.position, ANI_TIME, "y", 0.0-70.0, Ani.CIRC_OUT);
         Ani.to(p1_m, ANI_TIME, "rotationY", PI*2, Ani.CIRC_OUT);
         revealed = true;
       } else {
-        println("Animate the missioncard");
+        
         Ani.to(p1_m, ANI_TIME, "rotationY", -PI*2, Ani.CIRC_OUT);
         Ani.to(p1_m.position, ANI_TIME, "y", 0.0-0.0, Ani.CIRC_OUT);
         revealed = false;
@@ -241,13 +220,13 @@ class Risiko {
     } else if(activePlayer == 2) {
       
       if(!revealed) {
-        println("Animate the missioncard");
+        
         Ani.to(p2_m.position, ANI_TIME, "y", 0.0+70.0, Ani.CIRC_OUT);
         Ani.to(p2_m, ANI_TIME, "rotationY", PI*2, Ani.CIRC_OUT);
         p2_m.rotationY = 0;
         revealed = true;
       } else {
-        println("Animate the missioncard");
+        
         Ani.to(p2_m, ANI_TIME, "rotationY", -PI*2, Ani.CIRC_OUT);
         Ani.to(p2_m.position, ANI_TIME, "y", 0.0-0.0, Ani.CIRC_OUT);
         revealed = false;
@@ -280,7 +259,7 @@ class Risiko {
            p1_conquered--;
          } else if(keyCode == RIGHT) {
            playAnimation();
-         }
+         } 
          break;
       case InGameState.PLAYER2_TURN:
           if(keyCode == ENTER) {
@@ -295,22 +274,12 @@ class Risiko {
            p2_conquered--;
          } else if(keyCode == RIGHT) {
            playAnimation();
-         }
+         } 
          break;
-      case InGameState.PLAYER1_MISSIONCARD:
-        if(keyCode == ENTER) {
-          InGameState.current = InGameState.PLAYER1_TURN; 
-        }  
-        break;
-      case InGameState.PLAYER2_MISSIONCARD:
-        if(keyCode == ENTER) {
-          InGameState.current = InGameState.PLAYER2_TURN; 
-        }  
-        break;
       case InGameState.ATTACK:
+      
         break;
     }
-    println(InGameState.current);
   }
   
 

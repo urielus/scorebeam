@@ -4,19 +4,20 @@
  * Copyright (C) 2013
  *****/
 
-/**
- Quick Cover Flow in Processing
- by Adrià Navarro http://adrianavarro.net 
- USING: 3D (openGL), events (controlp5) and animation (ani)
- TODO: image resize, background image loading
- */
+/***
+ * Using Quick Cover Flow in Processing
+ * by Adrià Navarro http://adrianavarro.net 
+ ***/
 
 import processing.opengl.*;
 import de.looksgood.ani.*;
 import processing.video.*;
 
+/** Game objects */
 Risiko risiko;
 Cover[] covers;
+
+
 String[] names = { 
   "00.jpg", "01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"
 };
