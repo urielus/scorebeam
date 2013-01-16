@@ -20,6 +20,7 @@ static class InGameState {
 class Risiko {
 
   /** Load game graphics */
+  PImage imgAttack;                             //Image for attack scene
   PImage imgMenu;                               //Menu - intro screen
   PImage imgBoard;                              //Actual gaming board
   PImage p1, p2;                                //Tokens for player1 and player2
@@ -31,9 +32,11 @@ class Risiko {
   
   /** Load game movies */
   Movie canonfire;                              //Canonfire movie
-  Movie cavalry;                                //Cavalry movie
+  Movie cavalary;                                //Cavalry movie
   Movie gunfire;                                //Gunfire movie
-
+  
+  Movie theMov;                                 // current attack video
+  
   /** Canvas settings */
   PFont f;                                      //Font settings
   float ANI_TIME = 0.5;                         //Animation setting
@@ -64,14 +67,16 @@ class Risiko {
     p2 = getImg("cone_red.png");
     p1_idle = getImg("cone_yellow_idle.png");
     p2_idle = getImg("cone_red_idle.png");
+    imgAttack = getImg("attack.jpg");
     
     /**Initialize font settings */
     f = createFont("Arial",20,true); 
     
     /**Initialize movies */
     canonfire = new Movie(sb, "videos/canonfire.m4v");
-    cavalry = new Movie(sb, "videos/cavalry.m4v");
+    cavalary = new Movie(sb, "videos/cavalry.m4v");
     gunfire = new Movie(sb, "videos/gunfires.m4v");
+    
     
     /**Initialize missioncards */
     p1_m = new Missioncard("gameplay/mc_yellow");
@@ -199,6 +204,30 @@ class Risiko {
     image(imgBoard, 118.5, 123.5, 788, 521);
     hint(ENABLE_DEPTH_TEST);
     
+    
+    // GAME STATES
+    switch(InGameState.current){
+      case InGameState.ATTACK:
+       //if( millis() - time_millis > theMov.duration() * 1000){
+       if(millis()-time_millis > 2000) {         
+          if(activePlayer == 1){
+            InGameState.current = InGameState.PLAYER1_TURN;
+          } else {
+            InGameState.current = InGameState.PLAYER2_TURN;
+          }  
+        } else {
+          int movWidth = theMov.width; 
+          int movHeight = theMov.height; 
+          int mX = width/2 - movWidth/2;
+          int mY = height/2 - movHeight/2; 
+        
+          //image(theMov,mX,mY);
+          image(imgAttack, width/2-imgAttack.width/2, height/2-imgAttack.height/2);
+        } 
+        
+      break;
+    }
+    
   }
   
   public void playAnimation() {
@@ -259,7 +288,11 @@ class Risiko {
            p1_conquered--;
          } else if(keyCode == RIGHT) {
            playAnimation();
-         } 
+         }  else if(keyCode == BACKSPACE){
+           InGameState.current = InGameState.ATTACK; 
+           theMov = gunfire; 
+           time_millis = millis();
+         }
          break;
       case InGameState.PLAYER2_TURN:
           if(keyCode == ENTER) {
@@ -274,10 +307,15 @@ class Risiko {
            p2_conquered--;
          } else if(keyCode == RIGHT) {
            playAnimation();
-         } 
+         } else if(keyCode == BACKSPACE){
+           InGameState.current = InGameState.ATTACK;
+           // later random
+           theMov = gunfire; 
+           time_millis = millis();
+         }     
          break;
       case InGameState.ATTACK:
-      
+        // DO NOTHING ... FOR NOW ;D
         break;
     }
   }
